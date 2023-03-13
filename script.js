@@ -12,8 +12,7 @@ let player = (name, symbol) => {
 };
 
 let boardPiece = (placementid, player) => {
-  let getPlacementID = () => placementid;
-  let getPlayer = () => player;
+
   return { placementid, player};
 };
 
@@ -44,10 +43,10 @@ const gameController = (() => {
     return currentPlayer;
   };
 
-  let getScore = () => {
-    //what do I need to return in order for the event listener to know to continue player
-    //score of both players
-  };
+  // let getScore = () => {
+  //   //what do I need to return in order for the event listener to know to continue player
+  //   //score of both players
+  // };
 
   let game = (player1, player2) => {
     //might need to get the score here
@@ -55,7 +54,13 @@ const gameController = (() => {
     playerTwo = player2;
   };
 
-  return { getCurrentPlayer, full, game };
+  let checkWinner=(/*take in the board probably*/)=>{
+      //check the board for an absured amount of possibilities
+      //how can I cut down on the possiblities
+
+  }
+
+  return { getCurrentPlayer, full, game ,checkWinner};
 })();
 
 function addEventListenerList(list, event, fn) {
@@ -80,6 +85,9 @@ function cellSelected() {
   //boardPeice ?
   let newPiece = boardPiece(this.dataset.placementid,currentPlayer.getName());
   board.push(newPiece);
+
+
+  //check score for winner?
 }
 
 addEventListenerList(cells, "click", cellSelected);
