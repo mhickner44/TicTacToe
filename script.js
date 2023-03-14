@@ -1,24 +1,28 @@
 let cells = document.getElementsByClassName("cell");
 
-const board = [];
+//making the array the size we want
+const board = [
+  ["-", "-", "-"],
+  ["-", "-", "-"],
+  ["-", "-", "-"],
+];
 
 let player = (name, symbol) => {
   let wins = 0;
   let losses = 0;
   let getName = () => name;
   let getSymbol = () => symbol;
-  /*returns methods and needed attribtues of teh player*/
+ 
   return { getName, getSymbol };
 };
 
 let boardPiece = (placementid, player) => {
-
-  return { placementid, player};
+  return { placementid, player };
 };
 
-const displayController = (() => {
-  //add a selection to the board
-})();
+// const displayController = (() => {
+//   //could build the pieces for display in the event handler but I have not done that.
+// })();
 
 const gameController = (() => {
   //controller turns and wins
@@ -30,10 +34,6 @@ const gameController = (() => {
   };
 
   let getCurrentPlayer = () => {
-    //if the count is even p1 odd p2
-    console.log(playerOne.getSymbol());
-    console.log(playerTwo.getSymbol());
-
     if (count % 2 == 0) {
       currentPlayer = playerOne;
     } else {
@@ -43,10 +43,7 @@ const gameController = (() => {
     return currentPlayer;
   };
 
-  // let getScore = () => {
-  //   //what do I need to return in order for the event listener to know to continue player
-  //   //score of both players
-  // };
+
 
   let game = (player1, player2) => {
     //might need to get the score here
@@ -54,13 +51,83 @@ const gameController = (() => {
     playerTwo = player2;
   };
 
-  let checkWinner=(/*take in the board probably*/)=>{
-      //check the board for an absured amount of possibilities
-      //how can I cut down on the possiblities
+  let checkDiagnol = (x, y) => {
+    let currentSymbol = board[x][y];
+    let matches = 0;
+   
+    for (let i = 0; i < 3; i++) {
+      for (let ii = 0; ii < 3; ii++) {
+        //main
+        if (i == ii) {
+          if (board[i][ii] == currentSymbol) {
+            matches++;
+          }
+        }
+      }
+      if (matches == 3) {
+        return (winner = true);
+      }
+    }
 
-  }
+    matches=0;
+    
+    //anti diagnol
+    for (let i = 0; i < 3; i++) {
+      for (let ii = 0; ii < 3; ii++) {
+        if (i + ii == 2 && board[i][ii] == currentSymbol) {
+          matches++;
+        }
+      }
+      if (matches == 3) {
+        winner = true;
+      }
+    }
 
-  return { getCurrentPlayer, full, game ,checkWinner};
+    return winner;
+  };
+
+  let checkColumn = (x, y) => {
+    let matches = 0;
+    let winner = false;
+
+    let currentSymbol = board[x][y];
+    //x
+    for (let i = 0; i < 3; i++) {
+      if (board[x][i] == currentSymbol) {
+        matches++;
+      } else {
+        matches = 0;
+        i = 3;
+      }
+    }
+
+    if (matches == 3) {
+      return (winner = true);
+    }
+    //y
+    for (let i = 0; i < 3; i++) {
+      if (board[i][y] == currentSymbol) {
+        matches++;
+      } else {
+        i = 3;
+        matches = 0;
+      }
+    }
+    if (matches == 3) {
+      return (winner = true);
+    }
+  };
+  let checkWinner = (x, y) => {
+
+    winner = false;
+
+    if (checkDiagnol(x, y) == true||checkColumn(x, y) == true) {
+      winner = true;
+    }
+    return winner;
+  };
+
+  return { getCurrentPlayer, full, game, checkWinner };
 })();
 
 function addEventListenerList(list, event, fn) {
@@ -81,13 +148,15 @@ function cellSelected() {
   div.innerHTML = playerSymbol;
   this.appendChild(div);
 
-  //creating a new object to put into board
-  //boardPeice ?
-  let newPiece = boardPiece(this.dataset.placementid,currentPlayer.getName());
-  board.push(newPiece);
+ 
 
+  board[this.dataset.placementx][this.dataset.placementy] = playerSymbol;
+  console.log(
+    gameController.checkWinner(this.dataset.placementx, this.dataset.placementy)
+  );
 
-  //check score for winner?
+  //handout a win
+
 }
 
 addEventListenerList(cells, "click", cellSelected);
@@ -95,4 +164,4 @@ addEventListenerList(cells, "click", cellSelected);
 let playerOne = player("p1", "X");
 let playerTwo = player("p2", "O");
 gameController.game(playerOne, playerTwo);
-//while something somone has not won/gamboard not fuill  keep moving
+
