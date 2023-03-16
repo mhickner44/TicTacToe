@@ -1,7 +1,10 @@
-let cells = document.getElementsByClassName("cell");
-
+let cells = document.querySelectorAll(".cell");
+let p1Score = document.getElementById("p1Score");
+let p2Score = document.getElementById("p2Score");
+let winnerDisplay = document.querySelector(".winningBlock");
+let restart = document.querySelector(".restart");
 //making the array the size we want
-const board = [
+let board = [
   ["-", "-", "-"],
   ["-", "-", "-"],
   ["-", "-", "-"],
@@ -10,19 +13,62 @@ const board = [
 let player = (name, symbol) => {
   let wins = 0;
   let losses = 0;
+
   let getName = () => name;
   let getSymbol = () => symbol;
- 
-  return { getName, getSymbol };
+  let giveWin = () => {
+    wins++;
+  };
+  let getWins = () => wins;
+
+  return {
+    getName,
+    getSymbol,
+    giveWin,
+    getWins,
+  };
 };
 
 let boardPiece = (placementid, player) => {
   return { placementid, player };
 };
 
-// const displayController = (() => {
-//   //could build the pieces for display in the event handler but I have not done that.
-// })();
+const displayController = (() => {
+  //reset the pieces on the board
+  //display that there was a winner
+  //add wins to the p1 p2 scores
+  let addPoint = (player) => {
+    //determine which player should have a point here
+    if (player.getName() == "p1") {
+      p1Score.innerHTML = `P1:${player.getWins()}`;
+    } else {
+      p2Score.innerHTML = `P2:${player.getWins()}`;
+    }
+  };
+
+  let WWCD = (player) => {
+    winnerDisplay.style.display = "flex";
+    winnerDisplay.innerHTML = `Winner ${player.getName()}!`;
+    winnerDisplay.appendChild(restart);
+  };
+
+  //board reset
+  let boardReset = () => {
+    console.log("I ran first");
+    cells.forEach(function (cell) {
+      cell.innerHTML = "";
+    });
+    winnerDisplay.style.display = "none";
+
+    board = [
+      ["-", "-", "-"],
+      ["-", "-", "-"],
+      ["-", "-", "-"],
+    ];
+  };
+
+  return { addPoint, WWCD, boardReset };
+})();
 
 const gameController = (() => {
   //controller turns and wins
@@ -43,8 +89,6 @@ const gameController = (() => {
     return currentPlayer;
   };
 
-
-
   let game = (player1, player2) => {
     //might need to get the score here
     playerOne = player1;
@@ -54,7 +98,7 @@ const gameController = (() => {
   let checkDiagnol = (x, y) => {
     let currentSymbol = board[x][y];
     let matches = 0;
-   
+
     for (let i = 0; i < 3; i++) {
       for (let ii = 0; ii < 3; ii++) {
         //main
@@ -69,8 +113,8 @@ const gameController = (() => {
       }
     }
 
-    matches=0;
-    
+    matches = 0;
+
     //anti diagnol
     for (let i = 0; i < 3; i++) {
       for (let ii = 0; ii < 3; ii++) {
@@ -118,11 +162,13 @@ const gameController = (() => {
     }
   };
   let checkWinner = (x, y) => {
-
     winner = false;
 
-    if (checkDiagnol(x, y) == true||checkColumn(x, y) == true) {
+    if (checkDiagnol(x, y) == true || checkColumn(x, y) == true) {
       winner = true;
+      currentPlayer.giveWin();
+      displayController.WWCD(currentPlayer);
+      displayController.addPoint(currentPlayer);
     }
     return winner;
   };
@@ -148,20 +194,20 @@ function cellSelected() {
   div.innerHTML = playerSymbol;
   this.appendChild(div);
 
- 
-
   board[this.dataset.placementx][this.dataset.placementy] = playerSymbol;
   console.log(
     gameController.checkWinner(this.dataset.placementx, this.dataset.placementy)
   );
+}
 
-  //handout a win
-
+function newGame() {
+  displayController.boardReset();
+  console.log("I have been clicked:");
 }
 
 addEventListenerList(cells, "click", cellSelected);
+restart.addEventListener("click", newGame);
 
 let playerOne = player("p1", "X");
 let playerTwo = player("p2", "O");
 gameController.game(playerOne, playerTwo);
-

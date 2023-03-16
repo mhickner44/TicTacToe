@@ -1,5 +1,6 @@
 body {
   background-color: white;
+  position: relative;
 }
 
 .gridWrapper {
@@ -21,16 +22,37 @@ body {
   text-align: center;
 }
 
+.score {
+  display: flex;
+  justify-content: space-between;
 
-.score{
-    display:flex;
-    justify-content: space-between;
-
-    margin:0% 20%;
-    
+  margin: 0% 20%;
 }
 
-.cell{
+.cell {
+}
 
+.winningBlock{
+ 
+  position: absolute;
+  display: none;
+  flex-direction: column;
+ 
+  top: 25%;
+  right: 28%;
   
+  border: solid 3px;
+  border-radius: 45px;
+  font-size: 6rem;
+  padding: 3rem;
+
+  background-color: red;
+  color: white;
+
+}
+
+button{
+  border-radius: 45px;
+  font-size: 2rem;
+
 }
