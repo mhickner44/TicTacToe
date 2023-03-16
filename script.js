@@ -173,7 +173,47 @@ const gameController = (() => {
     return winner;
   };
 
-  return { getCurrentPlayer, full, game, checkWinner };
+
+
+  let move=(currentPlayer,obj)=>{
+    
+    const div = document.createElement("div");
+    div.innerHTML = currentPlayer.getSymbol();
+    obj.appendChild(div);
+  
+    board[obj.dataset.placementx][obj.dataset.placementy] = currentPlayer.getSymbol();
+
+    console.log(
+      gameController.checkWinner(obj.dataset.placementx, obj.dataset.placementy)
+    );
+
+    
+
+  }
+
+  let botMove=(obj)=>{
+//random untaken cell on board
+let x;
+let y;
+
+//check random 1-9 with untaken spot that == "-"
+x=getRandomInt(9);
+y=getRandomInt(9);
+//-----------------same stuff above but now its for the 
+const div = document.createElement("div");
+div.innerHTML = currentPlayer.getSymbol();
+obj.appendChild(div);
+
+//this part of the code needs to chagne 
+board[x][y] = currentPlayer.getSymbol();
+
+console.log(
+  gameController.checkWinner(obj.dataset.placementx, obj.dataset.placementy)
+);
+
+  }
+
+  return { getCurrentPlayer, full, game, checkWinner ,move,botMove};
 })();
 
 function addEventListenerList(list, event, fn) {
@@ -186,23 +226,23 @@ function addEventListenerList(list, event, fn) {
 function cellSelected() {
   //add it to the board array
 
-  const div = document.createElement("div");
+ let currentPlayer= gameController.getCurrentPlayer();
+
+
+gameController.move(currentPlayer,this);
+gameController.botMove();
 
   //get the current player then call the current player symbol
-  let currentPlayer = gameController.getCurrentPlayer();
-  let playerSymbol = currentPlayer.getSymbol();
-  div.innerHTML = playerSymbol;
-  this.appendChild(div);
-
-  board[this.dataset.placementx][this.dataset.placementy] = playerSymbol;
-  console.log(
-    gameController.checkWinner(this.dataset.placementx, this.dataset.placementy)
-  );
+  
 }
 
 function newGame() {
   displayController.boardReset();
   console.log("I have been clicked:");
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
 }
 
 addEventListenerList(cells, "click", cellSelected);
