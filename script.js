@@ -3,16 +3,18 @@ let p1Score = document.getElementById("p1Score");
 let p2Score = document.getElementById("p2Score");
 let winnerDisplay = document.querySelector(".winningBlock");
 let restart = document.querySelector(".restart");
+
+let endGame = false;
+
 //making the array the size we want
 let board = [
-  ["-", "-", "-"],
-  ["-", "-", "-"],
-  ["-", "-", "-"],
+  ["X","X","O"],
+  ["O","O","X"],
+  ["X","O","-"]
 ];
 
 let player = (name, symbol) => {
   let wins = 0;
-  let losses = 0;
 
   let getName = () => name;
   let getSymbol = () => symbol;
@@ -34,9 +36,7 @@ let boardPiece = (placementid, player) => {
 };
 
 const displayController = (() => {
-  //reset the pieces on the board
-  //display that there was a winner
-  //add wins to the p1 p2 scores
+  
   let addPoint = (player) => {
     //determine which player should have a point here
     if (player.getName() == "p1") {
@@ -49,6 +49,12 @@ const displayController = (() => {
   let WWCD = (player) => {
     winnerDisplay.style.display = "flex";
     winnerDisplay.innerHTML = `Winner ${player.getName()}!`;
+    winnerDisplay.appendChild(restart);
+  };
+
+  let catGame = () => {
+    winnerDisplay.style.display = "flex";
+    winnerDisplay.innerHTML = `Cats game!`;
     winnerDisplay.appendChild(restart);
   };
 
@@ -67,17 +73,17 @@ const displayController = (() => {
     ];
   };
 
-  return { addPoint, WWCD, boardReset };
+  return { addPoint, WWCD, boardReset, catGame };
 })();
 
 const gameController = (() => {
   //controller turns and wins
   let count = 0;
+  let addCount = () => {
+    count++;
+  };
   let playerOne;
   let playerTwo;
-  let full = () => {
-    //if the board is full 9 slots taken
-  };
 
   let getCurrentPlayer = () => {
     if (count % 2 == 0) {
@@ -93,6 +99,14 @@ const gameController = (() => {
     //might need to get the score here
     playerOne = player1;
     playerTwo = player2;
+  };
+
+  let checkCat = () => {
+    result = true;
+    if (exists(board, "-") == true) {
+      result = false;
+    }
+    return result;
   };
 
   let checkDiagnol = (x, y) => {
@@ -169,80 +183,103 @@ const gameController = (() => {
       currentPlayer.giveWin();
       displayController.WWCD(currentPlayer);
       displayController.addPoint(currentPlayer);
+      endGame = true;
+    }else if(gameController.checkCat()==true){
+      endGame = true;
+      displayController.catGame();
     }
     return winner;
   };
 
-
-
-  let move=(currentPlayer,obj)=>{
-    
+  let move = (currentPlayer, obj) => {
     const div = document.createElement("div");
     div.innerHTML = currentPlayer.getSymbol();
     obj.appendChild(div);
-  
-    board[obj.dataset.placementx][obj.dataset.placementy] = currentPlayer.getSymbol();
 
-    console.log(
-      gameController.checkWinner(obj.dataset.placementx, obj.dataset.placementy)
-    );
+    board[obj.dataset.placementx][obj.dataset.placementy] =
+      currentPlayer.getSymbol();
 
+    gameController.checkWinner(obj.dataset.placementx, obj.dataset.placementy);
+
+ 
+  };
+
+  let botMove = () => {
+    //random untaken cell on board
+    let x = getRandomInt(3);
+    let y = getRandomInt(3);
+    //check for a full board
+
+    // check the board for these numbers being in use
+    while (board[x][y] != "-") {
+      x = getRandomInt(3);
+      y = getRandomInt(3);
+    }
+
+    let currentPlayer = gameController.getCurrentPlayer();
+
+    board[x][y] = currentPlayer.getSymbol();
     
+    const div = document.createElement("div");
+    cells.forEach((element) => {
+      //get the div cell atttribute
+      if (
+        element.getAttribute("data-placementX") == x &&
+        element.getAttribute("data-placementY") == y
+      ) {
+        currentDiv = element;
+      }
+    });
 
-  }
+    div.innerHTML = currentPlayer.getSymbol();
+    currentDiv.appendChild(div);
+    gameController.checkWinner(x, y);
+  };
 
-  let botMove=(obj)=>{
-//random untaken cell on board
-let x;
-let y;
-
-//check random 1-9 with untaken spot that == "-"
-x=getRandomInt(9);
-y=getRandomInt(9);
-//-----------------same stuff above but now its for the 
-const div = document.createElement("div");
-div.innerHTML = currentPlayer.getSymbol();
-obj.appendChild(div);
-
-//this part of the code needs to chagne 
-board[x][y] = currentPlayer.getSymbol();
-
-console.log(
-  gameController.checkWinner(obj.dataset.placementx, obj.dataset.placementy)
-);
-
-  }
-
-  return { getCurrentPlayer, full, game, checkWinner ,move,botMove};
+  return {
+    getCurrentPlayer,
+    game,
+    checkWinner,
+    move,
+    botMove,
+    checkCat,
+    addCount,
+  };
 })();
 
 function addEventListenerList(list, event, fn) {
   for (let i = 0, len = list.length; i < len; i++) {
     list[i].addEventListener(event, fn, false);
   }
-  //do I need to add
+  
 }
 
 function cellSelected() {
-  //add it to the board array
-
- let currentPlayer= gameController.getCurrentPlayer();
 
 
-gameController.move(currentPlayer,this);
-gameController.botMove();
+  let currentPlayer = gameController.getCurrentPlayer();
 
-  //get the current player then call the current player symbol
-  
+  gameController.move(currentPlayer, this);
+  if (endGame == false) {
+    gameController.botMove();
+  } else {
+    gameController.addCount();
+  }
+ 
 }
 
 function newGame() {
   displayController.boardReset();
+  endGame = false;
   console.log("I have been clicked:");
 }
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
+}
+
+function exists(arr, search) {
+  return arr.some((row) => row.includes(search));
 }
 
 addEventListenerList(cells, "click", cellSelected);
