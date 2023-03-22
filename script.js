@@ -8,9 +8,9 @@ let endGame = false;
 
 //making the array the size we want
 let board = [
-  ["X","X","O"],
-  ["O","O","X"],
-  ["X","O","-"]
+  ["-", "-", "-"],
+  ["-", "-", "-"],
+  ["-", "-", "-"],
 ];
 
 let player = (name, symbol) => {
@@ -36,7 +36,6 @@ let boardPiece = (placementid, player) => {
 };
 
 const displayController = (() => {
-  
   let addPoint = (player) => {
     //determine which player should have a point here
     if (player.getName() == "p1") {
@@ -184,7 +183,7 @@ const gameController = (() => {
       displayController.WWCD(currentPlayer);
       displayController.addPoint(currentPlayer);
       endGame = true;
-    }else if(gameController.checkCat()==true){
+    } else if (gameController.checkCat() == true) {
       endGame = true;
       displayController.catGame();
     }
@@ -194,14 +193,13 @@ const gameController = (() => {
   let move = (currentPlayer, obj) => {
     const div = document.createElement("div");
     div.innerHTML = currentPlayer.getSymbol();
+
     obj.appendChild(div);
 
     board[obj.dataset.placementx][obj.dataset.placementy] =
       currentPlayer.getSymbol();
 
     gameController.checkWinner(obj.dataset.placementx, obj.dataset.placementy);
-
- 
   };
 
   let botMove = () => {
@@ -219,7 +217,7 @@ const gameController = (() => {
     let currentPlayer = gameController.getCurrentPlayer();
 
     board[x][y] = currentPlayer.getSymbol();
-    
+
     const div = document.createElement("div");
     cells.forEach((element) => {
       //get the div cell atttribute
@@ -251,20 +249,24 @@ function addEventListenerList(list, event, fn) {
   for (let i = 0, len = list.length; i < len; i++) {
     list[i].addEventListener(event, fn, false);
   }
-  
 }
 
 function cellSelected() {
+ 
 
-
-  let currentPlayer = gameController.getCurrentPlayer();
-
-  gameController.move(currentPlayer, this);
-  if (endGame == false) {
-    gameController.botMove();
+  if (this.childNodes.length > 0) {
+    console.log("yes");
   } else {
-    gameController.addCount();
+    let currentPlayer = gameController.getCurrentPlayer();
+    gameController.move(currentPlayer, this);
+    if (endGame == false) {
+      gameController.botMove();
+    } else {
+      gameController.addCount();
+    }
   }
+
+
  
 }
 
